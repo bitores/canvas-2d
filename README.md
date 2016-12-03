@@ -6,4 +6,4 @@
 
 [Fabric.js](http://fabricjs.com/)
 
-![示例图](./de.jpg =100x100)
+![示例图](https://github.com/bitores/canvas-2d/blob/master/de.jpg)
