@@ -239,7 +239,7 @@
 
 			function addOne() {
 				var img = new Image();
-		    	img.src="a.png";
+		    	img.src="printio.png";
 		    	img.onload = function(){
 		    		addImage(img);
 		    	}
@@ -432,10 +432,10 @@
 
 		    	var oImg = imageList[len-1];
 
-		    	var o = transformXY(x, y, oImg.rotate, oImg.left + oImg.width/2.0, oImg.top + oImg.height / 2.0, oImg);
+		    	// var o = transformXY(x, y, oImg.rotate, oImg.left + oImg.width/2.0, oImg.top + oImg.height / 2.0, oImg);
 
-		    	x = o.x;
-		    	y = o.y;
+		    	// x = o.x;
+		    	// y = o.y;
 
 		    	if(isCollsion(x, y, oImg.left-halfHandImgWidth, oImg.top-halfHandImgWidth, handImgWidth, handImgWidth)){
 		    		console.log('scale');
