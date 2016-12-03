@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name='viewport' content='width=device-width,initial-scale=1.0,user-scalable=no'>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name='renderer' content='webkit'>
+	<meta name='x5-page-mode' content='app'>
+	<meta name='x5-orientation' content='portrait'>
+	<meta name="x5-fullscreen" content="true">
+	<meta name="full-screen" content="yes">
+	<meta name='layoutmode' content='standard'>
+	<meta name='mobile-web-app-capable' content='yes'>
+	<meta name='browsermode' content='application'>
+	<meta name='screen-orientation' content='portrait'>
+	<meta name='format-detection' content='telephone=no'>
+	<meta name='apple-mobile-web-app-capable' content='yes'>
+	<meta name='apple-mobile-web-app-status-bar-style' content='black'>
+
+	<link rel="stylesheet" href="bower_components\sweetalert2\dist/sweetalert2.min.css">
+	<title></title>
+	<style>
+		*{margin: 0;padding: 0}
+		#container{
+			position: fixed;
+			left: 0;right: 0;top: 0;bottom: 0;z-index: 100;
+			margin: auto;
+		}
+		#menu,#text{
+			position: fixed;
+			bottom: 10px;
+			z-index: 101;
+			width: 50px;
+			height: 50px;
+			border-radius: 50px;
+			border: 1px solid #ccc;
+			text-align: center;
+			line-height: 50px;
+			background: white;
+			font-size: 25px;
+			font-weight: bold;
+		}
+		#menu{
+			right: 10px;
+		}
+		#text{
+			left: 10px;
+		}
+
+	</style>
+	<script src="bower_components\sweetalert2\dist/sweetalert2.min.js"></script>
+	<script>
+		window.onload = function(){
+			var oMenu = document.getElementById('menu');
+			var oText = document.getElementById('text');
+
+			var oRotate = document.getElementById('rotate');
+			var oScale = document.getElementById('scale');
+			var oFF = document.getElementById('off');
+
+			var canvas = document.getElementById('container'),
+				context = canvas.getContext('2d');
+
+			context.font="30px Arial";
+			context.fillStyle="#FF0000";
+			context.fillText("Hello World",100,100);
+
+
+
+			
+
+			var handImgWidth = 40, halfHandImgWidth = handImgWidth/2.0;
+			var handImgtype = 0;
+
+			var width = window.screen.width;// 返回当前屏幕宽度(分辨率值) 
+			var height = window.screen.height;// 返回当前屏幕高度(分辨率值) 
+// return;
+			canvas.width = width;
+			canvas.height = height;
+
+
+
+			var imageList = [];
+
+			var offLeft = 0, offTop = 0, offWidth = 0, offHeight = 0;
+		    var startX = 0, startY = 0;
+		    var lastX = 0,lastY = 0;
+		    var zIndex = 100;
+
+		    var tapImg=null;
+
+			
+
+			
+
+			canvas.addEventListener('touchstart',touchHandler, false);  
+		    canvas.addEventListener('touchmove',touchHandler, false);  
+		    canvas.addEventListener('touchend',touchHandler, false);
+
+		    oMenu.addEventListener('click',addOne, false);
+		    oText.addEventListener('click',showInput, false);
+
+		    function showInput() {
+		    	
+		    	swal({
+					title: '添加文本',
+					input: 'text',
+					showCancelButton: true,
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					showLoaderOnConfirm: true,
+					allowOutsideClick: true
+				}).then(function(res) {
+					if (res) {
+						addText(res)
+					}
+				},function(){
+
+				})
+		    }
+
+		    function addText(msg) {
+
+				// var c = convertTextToCanvas(msg)
+
+				// var oImg = convertCanvasToImage(c)
+
+				var oImg = msgToImage(msg);
+
+				addImage(oImg)
+
+		    }
+
+		    function msgToImage(msg) {
+
+		    	var len = 30; // 每行字数
+		        var i = 0;
+		        var fontSize = 30; // 字体大小
+		        var fontWeight = 'bold';// 'normal';// 字体
+		        var cnSize = 3/2;
+		        var enSize = 1;
+		        var txt = msg;
+		        // var canvas = $('canvas');
+		        var c = document.createElement("canvas"),
+			    	cxt = c.getContext("2d");
+
+
+		        if (len > txt.length) {
+		            len = txt.length;
+		        }
+
+		        c.width = fontSize * len;
+		        c.height = fontSize * cnSize * (Math.ceil(txt.length / len) + txt.split('\n').length - 1);
+
+		        cxt.clearRect(0, 0, c.width, c.height);
+		        cxt.fillStyle = "#FF0000";
+		        cxt.font = fontWeight + ' ' + fontSize + 'px sans-serif';
+		        cxt.textBaseline = 'top';
+
+		        console.log(txt.length);
+
+		        function countEn(str) {
+		        	if(/[a-z]/i.test(str)){
+				        return str.match(/[a-z]/ig).length;
+				    }
+				    return 0;
+		        }
+
+		        function fillTxt(text) {
+		            while (text.length > len) {
+		                var txtLine = text.substring(0, len);
+		                text = text.substring(len);
+
+		                // var count = countEn(text);
+
+		                cxt.fillText(txtLine, 0,  fontSize * cnSize * i++, c.width);
+		            }
+		            cxt.fillText(text, 0, fontSize * cnSize * i, c.width);
+		        }
+		        var txtArray = txt.split('\n');
+		        for ( var j = 0; j < txtArray.length; j++) {
+		            fillTxt(txtArray[j]);
+		            cxt.fillText('\n', 0, fontSize * cnSize * i++, c.width);
+		        }
+		        var imageData = cxt.getImageData(0, 0, c.width, c.height);
+		        
+		        var img = new Image();
+		        img.src = c.toDataURL("image/png");
+
+		        return img;
+		    }
+
+		    // 把image 转换为 canvas对象  
+			function convertTextToCanvas(msg) {  
+			    // 创建canvas DOM元素，并设置其宽高和图片一样   
+			    var c = document.createElement("canvas"),
+			    	cxt = c.getContext("2d");
+
+			    cxt.font="30px Arial";
+			    cxt.fillStyle="#FF0000";
+				// cxt.strokeStyle = 'red';
+				// cxt.textBaseline = 'top';
+				// cxt.textAlign = "center";
+
+				var metrics = cxt.measureText(msg);
+				var textWidth = Math.ceil(metrics.width);
+
+				console.log(msg, textWidth)
+
+				// canvas的width和style.width是如何影响canvas绘制的
+				// width / style.width < 0.78时，可正常显示
+
+				// c.setAttribute("width",''+textWidth*0.5);
+				// c.setAttribute("height",'100');
+
+			    c.style.width = textWidth + 'px';
+			    c.style.height = 100 + 'px';
+			    c.style.border = "1px solid #000";
+			    // 坐标(0,0) 表示从此处开始绘制，相当于偏移。
+
+			    cxt.fillText(msg, 0, 90);  
+
+			    // document.body.appendChild(c);
+			  
+			    return c;  
+			}  
+
+
+		    // 从 canvas 提取图片 image  
+			function convertCanvasToImage(canvas) {  
+			    //新Image对象，可以理解为DOM  
+			    var image = new Image();  
+			    // canvas.toDataURL 返回的是一串Base64编码的URL，当然,浏览器自己肯定支持  
+			    // 指定格式 PNG  
+			    image.src = canvas.toDataURL("image/png");
+
+			    return image;  
+			}
+
+			function addOne() {
+				var img = new Image();
+		    	img.src="a.png";
+		    	img.onload = function(){
+		    		addImage(img);
+		    	}
+			}
+
+		    function addImage( img ) {
+
+		    		imageList.push({
+		    			img: img,
+		    			left:Math.random()*(width-img.width),
+						top:Math.random()*(height-img.height),
+						width:img.width,
+						height:img.height,
+						zIndex:zIndex,
+						rotate:0
+		    		})
+
+		    		needUpdate();
+		    	
+		    }
+
+
+		    function draw(){
+		    	context.clearRect(0,0,width, height)
+		    	imageList=imageList.sort(function(a, b){
+		    		return a.zIndex>b.zIndex;
+		    	})
+
+		    	for(var k=0, len=imageList.length; k<len; k++){
+		    		var oImg = imageList[k];
+		    		
+		    		if(k === len-1){
+		    			context.lineWidth="6";
+						context.strokeStyle="#ccc";
+
+						context.save();//context的save()方法
+
+						
+						context.translate(oImg.left+oImg.width/2.0, oImg.top + oImg.height/2.0);
+
+		    			
+						context.rotate(oImg.rotate*Math.PI/180);
+
+						context.translate(-(oImg.left+oImg.width/2.0), -(oImg.top + oImg.height/2.0));
+
+						context.drawImage(oImg.img, oImg.left, oImg.top, oImg.width, oImg.height);
+
+
+						context.beginPath();
+
+						context.arc(oImg.left+oImg.width/2.0, oImg.top + oImg.height/2.0,4,0,Math.PI*2)
+						context.fillStyle = 'black';
+						context.fill();
+    					context.stroke();
+
+
+
+		    			context.strokeRect(oImg.left, oImg.top, oImg.width, oImg.height)
+
+		    			context.drawImage(oScale, oImg.left - halfHandImgWidth, oImg.top - halfHandImgWidth, handImgWidth, handImgWidth);
+		    			context.drawImage(oRotate, oImg.left+oImg.width - halfHandImgWidth, oImg.top+oImg.height - halfHandImgWidth, handImgWidth, handImgWidth);
+
+		    			context.drawImage(oFF, oImg.left+oImg.width - halfHandImgWidth, oImg.top - halfHandImgWidth, handImgWidth, handImgWidth);
+
+
+		    			context.restore();//context的restore()方法
+
+		    			
+		    		} else {
+		    			context.save();//context的save()方法
+
+		    			context.translate(oImg.left+oImg.width/2.0, oImg.top + oImg.height/2.0);
+
+		    			
+						context.rotate(oImg.rotate*Math.PI/180);
+
+						context.translate(-(oImg.left+oImg.width/2.0), -(oImg.top + oImg.height/2.0));
+
+
+		    			context.drawImage(oImg.img, oImg.left, oImg.top, oImg.width, oImg.height);
+
+
+		    			context.restore();//context的restore()方法
+		    		}
+		    	}
+
+		    	console.log('draw');
+		    }
+
+		    function findDistance(fromX, fromY, toX, toY){
+
+				var a = Math.abs(fromX - toX);
+
+				var b = Math.abs(fromY - toY);
+
+				return Math.sqrt((a * a) + (b * b));
+			}
+
+
+		    function transformXY(cx, cy, theta, originX, originY, rect) {
+		    	var retx = cx, rety = cy;
+
+		    	// center (0, 0) 坐标变换
+		    	// x1 = xcos0 + ysin0
+		    	// y1 = ycos0 - xsin0
+
+		    	// center (originX, originY) 坐标变换
+		    	// (x1-originX) = (x-originX)cos0 + (y-originY)sin0
+		    	// (y1-originY) = (y-originY)cos0 - (x-originX)sin0
+
+
+				// Rotate circle's center point back
+				retx = Math.cos(theta) * (cx - originX) -  Math.sin(theta) * (cy - originY) + originX;
+				rety  = Math.sin(theta) * (cx - originX) +  Math.cos(theta) * (cy - originY) + originY;
+				 
+				// Closest point in the rectangle to the center of circle rotated backwards(unrotated)
+				var closestX, closestY;
+				 
+				// Find the unrotated closest x point from center of unrotated circle
+				if (retx  < rect.left) {
+
+				    closestX = rect.left;
+				} else if (retx  > rect.left + rect.width) {
+
+				    closestX = rect.left + rect.width;
+				} else {
+
+				    closestX = retx ;
+				}
+				 
+				// Find the unrotated closest y point from center of unrotated circle
+				if (rety < rect.top) {
+
+				    closestY = rect.top;
+				} else if (rety > rect.top + rect.height) {
+
+				    closestY = rect.top + rect.height;
+				} else {
+
+				    closestY = rety;
+				}
+				 
+				// Determine collision
+				var collision = false;
+				 
+				var distance = findDistance(retx , rety, closestX, closestY);
+				if (distance < 0) {
+
+				    collision = true; // Collision
+				} else {
+
+				    collision = false;
+				}
+
+
+				// return collision;
+
+
+				return {
+					x: retx,
+					y: rety,
+					collision: collision
+				}
+		    }
+
+		    function isCollsion(x, y, rx, ry, rw, rh) {
+		    	if (x >= rx && x <= rx + rw && y >= ry && y <= ry + rh) {  
+		    		// 未旋转矩形碰撞
+		            return true;  
+		        } 
+
+		        return false;
+		    }
+
+
+
+
+
+			
+
+
+		    function rayHint(x, y){
+		    	var rayHint = [];
+		    	var len=imageList.length;
+		    	if(len===0) return {
+		    		code:0
+		    	};
+
+		    	context.save();//context的save()方法
+
+		    	var oImg = imageList[len-1];
+
+		    	var o = transformXY(x, y, oImg.rotate, oImg.left + oImg.width/2.0, oImg.top + oImg.height / 2.0, oImg);
+
+		    	x = o.x;
+		    	y = o.y;
+
+		    	if(isCollsion(x, y, oImg.left-halfHandImgWidth, oImg.top-halfHandImgWidth, handImgWidth, handImgWidth)){
+		    		console.log('scale');
+		    		return {
+		    			code:-1, // scale
+		    			img: oImg
+		    		}
+		    	}
+
+
+
+		    	if(isCollsion(x, y, oImg.left+oImg.width-halfHandImgWidth, oImg.top+oImg.height-halfHandImgWidth, handImgWidth, handImgWidth)){
+		    		console.log('rotate');
+		    		return {
+		    			code:-2, // rotate
+		    			img: oImg
+		    		}
+		    	}
+
+
+
+		    	if(isCollsion(x, y, oImg.left+oImg.width-halfHandImgWidth, oImg.top-halfHandImgWidth, handImgWidth, handImgWidth)){
+		    		console.log('off');
+
+		    		imageList.pop();
+
+		    		needUpdate();
+
+		    		return {
+		    			code:-3, // off
+		    			img: oImg
+		    		}
+		    	}
+
+		    	for(var k=0; k<len; k++){
+		    		oImg = imageList[k];
+
+		    		if(isCollsion(x, y, oImg.left, oImg.top, oImg.width, oImg.height)){
+		    			rayHint.push(oImg);
+		    		}
+		    	}
+
+		    	context.restore();//context的restore()方法
+
+		    	rayHint=rayHint.sort(function(a,b){
+		    		return a.zIndex<b.zIndex;
+		    	})
+
+		    	return {
+		    		code:rayHint.length,
+		    		img: rayHint[0]
+		    	}
+		    }
+
+		    function needUpdate(){
+		    	requestAnimationFrame(draw);
+		    }
+
+		    
+		    function touchHandler(event) {
+		    	var ev = event || window.event;
+		    	ev.preventDefault && ev.preventDefault();
+		    	
+		    	try{
+			    	switch(ev.type) {
+			    		case "touchstart":
+			    			
+			    			startX=ev.touches[0].pageX;
+			    			startY=ev.touches[0].pageY;
+
+						    var ret = rayHint(startX, startY);
+						    handImgtype = ret.code;
+						    if(ret.code>0) {
+						    	tapImg = ret.img;
+						    	zIndex +=5;
+						    	tapImg.zIndex=zIndex;
+
+						    	offLeft = tapImg.left ;
+						    	offTop = tapImg.top;
+
+						    	tapImg.rotate++;
+
+						    } else if(ret.code === -1) {
+						    	tapImg = ret.img;
+						    	offLeft = tapImg.left ;
+						    	offTop = tapImg.top;
+
+						    	offWidth = tapImg.width;
+						    	offHeight = tapImg.height;
+						    } else if(ret.code === -2) {
+						    	tapImg = ret.img;
+						    	offLeft = tapImg.left ;
+						    	offTop = tapImg.top;
+
+						    	offWidth = tapImg.width;
+						    	offHeight = tapImg.height;
+						    } else if(ret.code === -3) {
+						    	tapImg = null;
+							} else {
+								tapImg = null;
+							}
+
+			    		break;
+			    		case "touchend":
+			    			if(tapImg){
+			    				if(tapImg.width<0){
+				    				tapImg.width = -tapImg.width;
+				    			}
+
+				    			if(tapImg.height<0){
+				    				tapImg.height = -tapImg.height;
+				    			}
+			    			}
+			    			
+
+			    		break;
+			    		case "touchmove":
+			    		    var distX=ev.touches[0].pageX-startX;
+						    var distY=ev.touches[0].pageY-startY;
+
+						    console.log(distX, distY);
+
+						    lastX = distX;
+			    			lastY = distY;	
+
+						    if(tapImg) {
+
+						    	switch(handImgtype) {
+						    		case -1:{
+						    			// scale
+						    			var scaling = offWidth / offHeight;
+						    			var constrain = false;// 是否约束（等比例）--1、以宽为基准 2、以高为基准
+						    			tapImg.width = (offWidth - distX);
+						    			tapImg.height = constrain ? tapImg.width/scaling : (offHeight - distY);
+
+						    			
+
+						    			tapImg.left = offLeft+distX;
+							    		tapImg.top = offTop+distY;
+						    		}
+						    		break;
+						    		case -2:{
+						    			// rotate
+
+						    			
+
+						    		}
+						    		break;
+						    		default:{
+						    			tapImg.left = offLeft+distX;
+							    		tapImg.top = offTop+distY;
+						    		}
+						    	}
+
+						    } else {
+
+						    	
+						    }
+
+			    		break;
+			    	}
+			    } catch(err) {
+			    	alert(err)
+			    }
+
+			     needUpdate();
+		    }
+
+		    
+
+
+		}
+	</script>
+</head>
+<body>
+	<!-- <h1>canvas 画图</h1> -->
+	<img id='rotate' src="rotate.png" alt="" style="display:none">
+	<img id="scale" src="scale.png" alt="" style="display:none">
+	<img id="off" src="x.png" alt="" style="display:none">
+	<canvas id="container"></canvas>
+	<div id="menu">+</div>
+	<div id="text">T</div>
+</body>
+</html>

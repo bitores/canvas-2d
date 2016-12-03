@@ -1,0 +1,19 @@
+{
+  "name": "canvas-2d",
+  "version": "1.0.0",
+  "description": "[一次关于canvas hidpi的2个bug解决过程](http://jiaolonghuang.github.io/2015/11/16/bug-canvas/)\r [旋转矩形碰撞检测](http://www.cnblogs.com/Cson/archive/2012/08/15/2639350.html)",
+  "main": "sweetalert.min.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitores/canvas-2d.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bitores/canvas-2d/issues"
+  },
+  "homepage": "https://github.com/bitores/canvas-2d#readme"
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name='viewport' content='width=device-width,initial-scale=1.0,user-scalable=no'>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name='renderer' content='webkit'>
+	<meta name='x5-page-mode' content='app'>
+	<meta name='x5-orientation' content='portrait'>
+	<meta name='layoutmode' content='standard'>
+	<meta name='mobile-web-app-capable' content='yes'>
+	<meta name='browsermode' content='application'>
+	<meta name='screen-orientation' content='portrait'>
+	<meta name='format-detection' content='telephone=no'>
+	<meta name='apple-mobile-web-app-capable' content='yes'>
+	<meta name='apple-mobile-web-app-status-bar-style' content='black'>
+	<title>图片拖动</title>
+	<style>
+		*{padding: 0;margin: 0}
+		html {
+		    -webkit-user-select: none;
+		    -moz-user-select: none;
+		    -o-user-select: none;
+		    user-select: none;
+		    /*pointer-events: none;*/
+		}
+
+		body{
+			/*pointer-events: none;*/
+		}
+		img{
+			/*pointer-events: none; */
+		}
+		.draggable {
+			cursor: pointer;
+			position: absolute;
+			left: 0;
+			top: 0;
+			z-index: 100;
+			/*pointer-events: none; */
+		}
+	</style>
+</head>
+<body>
+	<img id="box1" src="a.png" alt="" class="draggable" draggable="true">
+	<img id="box2" src="a.png" alt="" class="draggable" draggable="true">
+	<img id="box3" src="a.png" alt="" class="draggable" draggable="true">
+
+
+	<script>
+	// https://share.web-tinker.com/%e5%9c%a8%e8%a7%a6%e5%b1%8f%e6%89%8b%e6%9c%ba%e4%b8%8a%e5%ae%9e%e7%8e%b0%e7%9a%84%e5%9b%be%e7%89%87%e6%8b%96%e5%8a%a8.html
+		var oDiv = null;
+	    var disX = null, disY = null;
+	    var zIndex = 100;
+
+		document.addEventListener('touchstart',touch, false);  
+	    document.addEventListener('touchmove',touch, false);  
+	    document.addEventListener('touchend',touch, false);
+
+	    
+	    function touch(event) {
+	    	var ev = event || window.event;
+
+	    	try{
+		    	if(ev.target&&ev.target.className==="draggable") {
+		    		oDiv = document.getElementById(ev.target.attributes.id.nodeValue);
+		    		oDiv.style.zIndex = zIndex++;
+		    	} else {
+		    		ev.preventDefault && ev.preventDefault();
+		    		return;
+		    	}
+		    	switch(ev.type) {
+		    		case "touchstart":
+		    			
+		    			// console.log('touchstart');
+		    			disX=ev.touches[0].pageX-oDiv.offsetLeft;
+		    			disY=ev.touches[0].pageY-oDiv.offsetTop;
+		    		break;
+		    		case "touchend":
+		    			oDiv = null;
+		    			// console.log('touchend');
+		    		break;
+		    		case "touchmove":
+		    			// console.log('touchmove',oDiv);
+
+		    		    var l=ev.touches[0].pageX-disX
+					    var t=ev.touches[0].pageY-disY
+
+					    oDiv.style.left=l+'px'
+					    oDiv.style.top=t+'px'
+
+					    // console.log(l, t, disX, disY);
+					    ev.preventDefault && ev.preventDefault();
+		    		break;
+		    	}
+		    } catch(err) {
+		    	alert(err)
+		    }
+
+		     
+	    }
+	</script>
+</body>
+</html>

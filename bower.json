@@ -1,0 +1,17 @@
+{
+  "name": "a",
+  "authors": [
+    "bitores <773155801@qq.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
