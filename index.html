@@ -57,6 +57,8 @@
 			var oRotate = document.getElementById('rotate');
 			var oScale = document.getElementById('scale');
 			var oFF = document.getElementById('off');
+			var oLocked = document.getElementById('locked');
+			var oUnlock = document.getElementById('unlock');
 
 			var canvas = document.getElementById('container'),
 				context = canvas.getContext('2d');
@@ -255,7 +257,9 @@
 						width:img.width,
 						height:img.height,
 						zIndex:zIndex,
-						rotate:0
+						rotate:0,
+						unlock: true,
+						selected: false
 		    		})
 
 		    		needUpdate();
@@ -272,7 +276,7 @@
 		    	for(var k=0, len=imageList.length; k<len; k++){
 		    		var oImg = imageList[k];
 		    		
-		    		if(k === len-1){
+		    		if(oImg.selected){
 		    			context.lineWidth="6";
 						context.strokeStyle="#ccc";
 
@@ -305,6 +309,13 @@
 
 		    			context.drawImage(oFF, oImg.left+oImg.width - halfHandImgWidth, oImg.top - halfHandImgWidth, handImgWidth, handImgWidth);
 
+		    			if(oImg.unlock) {
+		    				context.drawImage(oUnlock, oImg.left - halfHandImgWidth, oImg.top + oImg.height - halfHandImgWidth, handImgWidth, handImgWidth);
+		    			} else {
+		    				context.drawImage(oLocked, oImg.left - halfHandImgWidth, oImg.top + oImg.height - halfHandImgWidth, handImgWidth, handImgWidth);
+		    			}
+		    			
+
 
 		    			context.restore();//context的restore()方法
 
@@ -315,7 +326,7 @@
 		    			context.translate(oImg.left+oImg.width/2.0, oImg.top + oImg.height/2.0);
 
 		    			
-						context.rotate(oImg.rotate*Math.PI/180);
+						context.rotate(-oImg.rotate*Math.PI/180);
 
 						context.translate(-(oImg.left+oImg.width/2.0), -(oImg.top + oImg.height/2.0));
 
@@ -360,50 +371,6 @@
 				retx = Math.cos(theta) * (cx - originX) +  Math.sin(theta) * (cy - originY) + originX;
 				rety  = Math.cos(theta) * (cy - originY) -  Math.sin(theta) * (cx - originX) + originY;
 
-				// // console.log(cx, cy, originX, originY, parseInt(retx), parseInt(rety))
-				 
-				// // Closest point in the rectangle to the center of circle rotated backwards(unrotated)
-				// var closestX, closestY;
-				 
-				// // Find the unrotated closest x point from center of unrotated circle
-				// if (retx  < rect.left) {
-
-				//     closestX = rect.left;
-				// } else if (retx  > rect.left + rect.width) {
-
-				//     closestX = rect.left + rect.width;
-				// } else {
-
-				//     closestX = retx ;
-				// }
-				 
-				// // Find the unrotated closest y point from center of unrotated circle
-				// if (rety < rect.top) {
-
-				//     closestY = rect.top;
-				// } else if (rety > rect.top + rect.height) {
-
-				//     closestY = rect.top + rect.height;
-				// } else {
-
-				//     closestY = rety;
-				// }
-				 
-				// // Determine collision
-				// var collision = false;
-				 
-				// var distance = findDistance(retx , rety, closestX, closestY);
-				// if (distance < 0) {
-
-				//     collision = true; // Collision
-				// } else {
-
-				//     collision = false;
-				// }
-
-
-				// return collision;
-
 
 				return {
 					x: retx,
@@ -422,70 +389,74 @@
 		    }
 
 
-
-
-
-			
-
-
 		    function rayHint(x, y){
 		    	var rayHint = [];
 		    	var len=imageList.length;
 		    	if(len===0) return {
 		    		code:0
 		    	};
-
-		    	context.save();//context的save()方法
-
-		    	var oImg = imageList[len-1];
-
-		    	var o = transformXY(x, y, oImg.rotate, oImg.left + oImg.width/2.0, oImg.top + oImg.height / 2.0, oImg);
-
-		    	x = o.x;
-		    	y = o.y;
-
-		    	if(isCollsion(x, y, oImg.left-halfHandImgWidth, oImg.top-halfHandImgWidth, handImgWidth, handImgWidth)){
-		    		console.log('scale');
-		    		return {
-		    			code:-1, // scale
-		    			img: oImg
-		    		}
-		    	}
-
-
-
-		    	if(isCollsion(x, y, oImg.left+oImg.width-halfHandImgWidth, oImg.top+oImg.height-halfHandImgWidth, handImgWidth, handImgWidth)){
-		    		console.log('rotate');
-		    		return {
-		    			code:-2, // rotate
-		    			img: oImg
-		    		}
-		    	}
-
-
-
-		    	if(isCollsion(x, y, oImg.left+oImg.width-halfHandImgWidth, oImg.top-halfHandImgWidth, handImgWidth, handImgWidth)){
-		    		console.log('off');
-
-		    		imageList.pop();
-
-		    		needUpdate();
-
-		    		return {
-		    			code:-3, // off
-		    			img: oImg
-		    		}
-		    	}
-
-		    	for(var k=0; k<len; k++){
+		    	
+				for(var k=0; k<len; k++){
 		    		oImg = imageList[k];
+
+		    		if(oImg.selected) {
+
+		    			var o = transformXY(x, y, oImg.rotate, oImg.left + oImg.width/2.0, oImg.top + oImg.height / 2.0, oImg);
+
+				    	x = o.x;
+				    	y = o.y;
+
+				    	oImg.selected = false;
+
+				    	if(isCollsion(x, y, oImg.left-halfHandImgWidth, oImg.top-halfHandImgWidth, handImgWidth, handImgWidth)){
+				    		console.log('scale');
+				    		return {
+				    			code:-1, // scale
+				    			img: oImg
+				    		}
+				    	}
+
+
+
+				    	if(isCollsion(x, y, oImg.left+oImg.width-halfHandImgWidth, oImg.top+oImg.height-halfHandImgWidth, handImgWidth, handImgWidth)){
+				    		console.log('rotate');
+				    		return {
+				    			code:-2, // rotate
+				    			img: oImg
+				    		}
+				    	}
+
+
+
+				    	if(isCollsion(x, y, oImg.left+oImg.width-halfHandImgWidth, oImg.top-halfHandImgWidth, handImgWidth, handImgWidth)){
+				    		console.log('off');
+
+				    		imageList.pop();
+
+				    		needUpdate();
+
+				    		return {
+				    			code:-3, // off
+				    			img: oImg
+				    		}
+				    	}
+
+				    	if(isCollsion(x, y, oImg.left-halfHandImgWidth, oImg.top+oImg.height-halfHandImgWidth, handImgWidth, handImgWidth)){
+				    		console.log('lock');
+				    		return {
+				    			code:-4, // scale
+				    			img: oImg
+				    		}
+				    	}
+
+				    	
+		    		}
 
 		    		if(isCollsion(x, y, oImg.left, oImg.top, oImg.width, oImg.height)){
 		    			rayHint.push(oImg);
 		    		}
 		    	}
 
-		    	context.restore();//context的restore()方法
 
 		    	rayHint=rayHint.sort(function(a,b){
 		    		return a.zIndex<b.zIndex;
@@ -594,12 +565,18 @@
 			    			startX=ev.touches[0].pageX;
 			    			startY=ev.touches[0].pageY;
 
+			    
+
 						    var ret = rayHint(startX, startY);
 						    handImgtype = ret.code;
 						    if(ret.code>0) {
 						    	tapImg = ret.img;
-						    	zIndex +=5;
-						    	tapImg.zIndex=zIndex;
+
+						    	if(tapImg.unlock === true) {
+						    		zIndex +=5;
+						    		tapImg.zIndex=zIndex;
+						    	}
+						    	
 
 						    	offLeft = tapImg.left ;
 						    	offTop = tapImg.top;
@@ -624,9 +601,26 @@
 						    	offHeight = tapImg.height;
 						    } else if(ret.code === -3) {
 						    	tapImg = null;
+							} else if(ret.code === -4) {
+
+								tapImg = ret.img;
+								offLeft = tapImg.left ;
+						    	offTop = tapImg.top;
+
+								tapImg.unlock = !tapImg.unlock;
+								if(tapImg.unlock === false) {
+									tapImg.zIndex = 9999;
+								} else {
+									tapImg.zIndex = zIndex;
+								}
+
+								console.log(tapImg.unlock, tapImg.zIndex)
 							} else {
 								tapImg = null;
+								
 							}
+
+							if(tapImg)tapImg.selected = true;
 
 			    		break;
 			    		case "touchend":
@@ -720,6 +714,8 @@
 	<img id='rotate' src="rotate.png" alt="" style="display:none">
 	<img id="scale" src="scale.png" alt="" style="display:none">
 	<img id="off" src="x.png" alt="" style="display:none">
+	<img id="locked" src="locked.png" alt="" style="display:none">
+	<img id="unlock" src="unlock.png" alt="" style="display:none">
 	<canvas id="container"></canvas>
 	<div id="menu">+</div>
 	<div id="text">T</div>
