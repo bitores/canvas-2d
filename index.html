@@ -281,7 +281,7 @@
 						context.translate(oImg.left+oImg.width/2.0, oImg.top + oImg.height/2.0);
 
 		    			
-						context.rotate(oImg.rotate*Math.PI/180);
+						context.rotate(-oImg.rotate*Math.PI/180);
 
 						context.translate(-(oImg.left+oImg.width/2.0), -(oImg.top + oImg.height/2.0));
 
@@ -340,7 +340,11 @@
 
 
 		    function transformXY(cx, cy, theta, originX, originY, rect) {
+
+
 		    	var retx = cx, rety = cy;
+
+		    	theta = -theta*Math.PI/180;
 
 		    	// center (0, 0) 坐标变换
 		    	// x1 = xcos0 + ysin0
@@ -352,47 +356,49 @@
 
 
 				// Rotate circle's center point back
-				retx = Math.cos(theta) * (cx - originX) -  Math.sin(theta) * (cy - originY) + originX;
-				rety  = Math.sin(theta) * (cx - originX) +  Math.cos(theta) * (cy - originY) + originY;
+				retx = Math.cos(theta) * (cx - originX) +  Math.sin(theta) * (cy - originY) + originX;
+				rety  = Math.cos(theta) * (cy - originY) -  Math.sin(theta) * (cx - originX) + originY;
+
+				// // console.log(cx, cy, originX, originY, parseInt(retx), parseInt(rety))
 				 
-				// Closest point in the rectangle to the center of circle rotated backwards(unrotated)
-				var closestX, closestY;
+				// // Closest point in the rectangle to the center of circle rotated backwards(unrotated)
+				// var closestX, closestY;
 				 
-				// Find the unrotated closest x point from center of unrotated circle
-				if (retx  < rect.left) {
+				// // Find the unrotated closest x point from center of unrotated circle
+				// if (retx  < rect.left) {
 
-				    closestX = rect.left;
-				} else if (retx  > rect.left + rect.width) {
+				//     closestX = rect.left;
+				// } else if (retx  > rect.left + rect.width) {
 
-				    closestX = rect.left + rect.width;
-				} else {
+				//     closestX = rect.left + rect.width;
+				// } else {
 
-				    closestX = retx ;
-				}
+				//     closestX = retx ;
+				// }
 				 
-				// Find the unrotated closest y point from center of unrotated circle
-				if (rety < rect.top) {
+				// // Find the unrotated closest y point from center of unrotated circle
+				// if (rety < rect.top) {
 
-				    closestY = rect.top;
-				} else if (rety > rect.top + rect.height) {
+				//     closestY = rect.top;
+				// } else if (rety > rect.top + rect.height) {
 
-				    closestY = rect.top + rect.height;
-				} else {
+				//     closestY = rect.top + rect.height;
+				// } else {
 
-				    closestY = rety;
-				}
+				//     closestY = rety;
+				// }
 				 
-				// Determine collision
-				var collision = false;
+				// // Determine collision
+				// var collision = false;
 				 
-				var distance = findDistance(retx , rety, closestX, closestY);
-				if (distance < 0) {
+				// var distance = findDistance(retx , rety, closestX, closestY);
+				// if (distance < 0) {
 
-				    collision = true; // Collision
-				} else {
+				//     collision = true; // Collision
+				// } else {
 
-				    collision = false;
-				}
+				//     collision = false;
+				// }
 
 
 				// return collision;
@@ -401,7 +407,7 @@
 				return {
 					x: retx,
 					y: rety,
-					collision: collision
+					// collision: collision
 				}
 		    }
 
@@ -432,10 +438,10 @@
 
 		    	var oImg = imageList[len-1];
 
-		    	// var o = transformXY(x, y, oImg.rotate, oImg.left + oImg.width/2.0, oImg.top + oImg.height / 2.0, oImg);
+		    	var o = transformXY(x, y, oImg.rotate, oImg.left + oImg.width/2.0, oImg.top + oImg.height / 2.0, oImg);
 
-		    	// x = o.x;
-		    	// y = o.y;
+		    	x = o.x;
+		    	y = o.y;
 
 		    	if(isCollsion(x, y, oImg.left-halfHandImgWidth, oImg.top-halfHandImgWidth, handImgWidth, handImgWidth)){
 		    		console.log('scale');
@@ -556,7 +562,7 @@
 			    		    var distX=ev.touches[0].pageX-startX;
 						    var distY=ev.touches[0].pageY-startY;
 
-						    console.log(distX, distY);
+						    // console.log(distX, distY);
 
 						    lastX = distX;
 			    			lastY = distY;	
