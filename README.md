@@ -8,4 +8,6 @@
 
 ![示例图](https://github.com/bitores/canvas-2d/blob/master/de.jpg)
 
+![示例图](https://github.com/bitores/canvas-2d/blob/master/de2.jpg)
+
 ### [向量的旋转角]()
